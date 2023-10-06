@@ -5,7 +5,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.models.User;
-import ru.kata.spring.boot_security.demo.repositories.UserRepository;
 import ru.kata.spring.boot_security.demo.services.RoleServiceImp;
 import ru.kata.spring.boot_security.demo.services.UserServiceImp;
 
@@ -15,22 +14,19 @@ import java.security.Principal;
 @RequestMapping("/adminBootstrap")
 public class AdminController {
 
-    private final UserRepository userRepository;
-
     private final UserServiceImp userServiceImp;
 
     private final RoleServiceImp roleServiceImp;
 
     @Autowired
-    public AdminController(UserServiceImp userServiceImp, RoleServiceImp roleServiceImp, UserRepository userRepository) {
+    public AdminController(UserServiceImp userServiceImp, RoleServiceImp roleServiceImp) {
         this.userServiceImp = userServiceImp;
         this.roleServiceImp = roleServiceImp;
-        this.userRepository = userRepository;
     }
 
     @GetMapping
     public String pageForAdmin(Model model, Principal principal) {
-        model.addAttribute("admin", userRepository.findByUsername(principal.getName()));
+        model.addAttribute("admin", userServiceImp.findByUsername(principal.getName()));
         model.addAttribute("users", userServiceImp.getUserList());
         model.addAttribute("user", new User());
         model.addAttribute("roles", roleServiceImp.findAllRoles());
@@ -44,8 +40,8 @@ public class AdminController {
     }
 
     @PatchMapping("/{id}")
-    public String update(@ModelAttribute("user") User user, @PathVariable("id") long id) {
-        userServiceImp.updateUser(id, user);
+    public String update(@ModelAttribute("user") User user) {
+        userServiceImp.updateUser(user);
         return "redirect:/adminBootstrap";
     }
 
